@@ -3,17 +3,15 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const r = require('rethinkdb');
 
+//routes
+const trusteeRoutes = require('./api/routes/trustees');
+
 const app = express();
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(createConnection);
 
-var connection = null;
-r.connect( {host: '139.59.0.131', port: 28015}, function(err, conn) {
-    if (err) throw console.log(err);
-    connection = conn;
-    console.log(connection);
-});
 
 //cors headers
 app.use((req, res, next) => {
@@ -28,6 +26,8 @@ app.use((req, res, next) => {
     }
     next();
 });
+
+app.use('/trustee', trusteeRoutes);
 
 //test route
 app.get('/test', function (req, res, next) {
@@ -51,4 +51,13 @@ app.use((error, req, res, next) => {
         }
     });
 });
+
+function createConnection(req, res, next) {
+    var connection = null;
+    r.connect({ host: '139.59.0.131', port: 28015, user: 'admin_grace', password: 'gracewebsiters' }, function (err, conn) {
+        if (err) throw err;
+        req._dbconn = conn;
+        next();
+    });
+}
 module.exports = app;
