@@ -4,7 +4,8 @@
   "description": "Backend APIs for Grace Fellowship Web Application",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server":"nodemon server.js"
   },
   "author": "Dhruv Acharya",
   "license": "ISC",
@@ -15,5 +16,8 @@
     "jsonwebtoken": "^8.2.2",
     "morgan": "^1.9.0",
     "rethinkdb": "^2.3.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.5"
   }
 }
