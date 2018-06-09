@@ -64,19 +64,26 @@ router.post('/', function (req, res, next) {
                 });
             }
             else{
+                
                 cursor.toArray((err, result) =>{
+                    console.log(result);
                     if (err) {
+                        console.log(err);
+                        
                         res.status(500).json(err);
                     }
                     else if(result.length === 0) {
                         res.status(404).json({
-                            message : "User not Found!"
+                            message : "Invalid Credentials"
                         });
                     }
                     else {
-                        let name_password = retriveNamePassword(user_type,result);
-                        bcrypt.compare(req.body.password, name_password.split("%")[1], (err, success) => {
+                        // let name_password = retriveNamePassword(user_type,result);
+                        bcrypt.compare(req.body.password, result[0].password, (err, success) => {
+
                             if (err) {
+                                console.log(err);
+                                
                                 return res.status(500).json({
                                     message: err
                                 });
@@ -85,7 +92,7 @@ router.post('/', function (req, res, next) {
                                 const token = jwt.sign(
                                     {
                                         id: result[0].id,
-                                        name: name_password.split("%")[0],
+                                        name: result[0].name,
                                         type: user_type
                                     },
                                     process.env.JWT_KEY,
@@ -105,6 +112,8 @@ router.post('/', function (req, res, next) {
                             }
                         });
                     }
+
+
                 });
             }
         });
