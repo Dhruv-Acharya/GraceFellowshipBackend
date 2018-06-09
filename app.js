@@ -3,9 +3,10 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const createConnection = require('./api/middleware/createConnection');
 
-//routes
-const loginRoute = require('./api/routes/login');
 
+//routes
+const loginRoutes = require('./api/routes/login');
+const adminRoutes = require('./api/routes/admin');
 //app initializatio
 const app = express();
 
@@ -30,7 +31,8 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/login', loginRoute);
+app.use('/login', loginRoutes);
+app.use('/admin', adminRoutes);
 
 //test route
 app.get('/test', function (req, res, next) {

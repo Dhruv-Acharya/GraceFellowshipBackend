@@ -44,18 +44,18 @@ router.post('/', function (req, res, next) {
             });
     }*/
     if(req.body.username[0] === 'v')
-        user_type = "Volunteer";
-    else if(req.body.username[0] === 'o')
-        user_type = "OfferingsHandler";
+        user_type = "volunteer";
+    else if(req.body.username[0] === 'c')
+        user_type = "campus";
     else if(req.body.username[0] === 'a')
-        user_type = "Admin";
+        user_type = "admin";
     else if(req.body.username[0] === 't')
-        user_type = "Trustee";
+        user_type = "trustee";
     else
         user_type = "Invalid";
 
     if (user_type.localeCompare("Invalid") != 0 || user_type !== null) {
-        let username_field = user_type+'_username';
+        let username_field = 'username';
         r.db('grace_fellowship').table(user_type).filter(r.row(username_field).eq(req.body.username)).
         run(req._dbconn, (err, cursor) =>{
             if(err){
