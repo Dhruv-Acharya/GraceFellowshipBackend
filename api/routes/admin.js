@@ -137,22 +137,10 @@ router.get("/campuses",function(req,res,next){
     });
 });
 
-//fetching bath members of a given campus ID
+//fetching batch members of a given campus ID
 router.get("/campus/:campus_id/batch_members",function(req,res,next){
     
     r.db('grace_fellowship').table("campus").get(req.params.campus_id).pluck("batchMembers").run(req._dbconn, function(err, result) {
-        if (err) {
-            res.status(500).json(err);
-        }
-        res.status(200).json(result);
-    });
-});
-
-//insert batch member in a given campus by campus ID
-
-router.post("/campus/:campus_id/batch_member",function(req,res,next){
-    
-    r.db('grace_fellowship').table("campus").get(req.params.campus_id).("batch_member").run(req._dbconn, function(err, result) {
         if (err) {
             res.status(500).json(err);
         }
