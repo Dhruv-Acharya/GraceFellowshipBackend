@@ -73,7 +73,7 @@ router.post('/', function (req, res, next) {
                         res.status(500).json(err);
                     }
                     else if(result.length === 0) {
-                        res.status(404).json({
+                        res.status(401).json({
                             message : "Invalid Credentials"
                         });
                     }
@@ -107,7 +107,7 @@ router.post('/', function (req, res, next) {
                             }
                             else{
                                 return res.status(401).json({
-                                    message: 'Password Incorrect!',
+                                    message: 'Invalid Credentials!',
                                 });
                             }
                         });

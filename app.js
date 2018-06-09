@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const checkAuth = require('./api/middleware/check-auth')
 const createConnection = require('./api/middleware/createConnection');
 
 
@@ -15,7 +16,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(createConnection);
-
+app.use(checkAuth);
 
 //cors headers
 app.use((req, res, next) => {
