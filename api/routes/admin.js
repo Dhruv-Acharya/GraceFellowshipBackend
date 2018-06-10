@@ -45,7 +45,7 @@ router.post("/volunteer",function(req,res,next){
 router.get("/volunteers",function(req,res,next){
     //console.log(req);
     
-    r.db('grace_fellowship').table('volunteer')
+    r.db('grace_fellowship').table('volunteer').without("password")
     .run(req._dbconn, (err,vol)=>{
 
         vol.toArray((err, result) =>{
@@ -63,7 +63,7 @@ router.get("/volunteers",function(req,res,next){
 router.get("/volunteer/:id",function(req,res,next){
     
     var volunteerId = req.params.id;
-    r.db('grace_fellowship').table('volunteer').get(volunteerId)
+    r.db('grace_fellowship').table('volunteer').without('password').get(volunteerId)
         .run(req._dbconn, (err,vol)=>{
             if(vol)
                 res.status(200).json(vol);

@@ -16,7 +16,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(createConnection);
-app.use(checkAuth);
+
 
 //cors headers
 app.use((req, res, next) => {
@@ -33,6 +33,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/login', loginRoutes);
+app.use(checkAuth);
 app.use('/admin', adminRoutes);
 
 //test route
