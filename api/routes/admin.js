@@ -43,8 +43,9 @@ router.post("/volunteer",function(req,res,next){
 
 // fetch all volunteers
 router.get("/volunteers",function(req,res,next){
+    //console.log(req);
     
-    r.db('grace_fellowship').table('volunteer')
+    r.db('grace_fellowship').table('volunteer').without("password")
     .run(req._dbconn, (err,vol)=>{
 
         vol.toArray((err, result) =>{
@@ -62,7 +63,7 @@ router.get("/volunteers",function(req,res,next){
 router.get("/volunteer/:id",function(req,res,next){
     
     var volunteerId = req.params.id;
-    r.db('grace_fellowship').table('volunteer').get(volunteerId)
+    r.db('grace_fellowship').table('volunteer').without('password').get(volunteerId)
         .run(req._dbconn, (err,vol)=>{
             if(vol)
                 res.status(200).json(vol);
@@ -105,6 +106,11 @@ router.delete("/volunteers",function(req,res,next){
 // update single volunteer by ID
 router.patch("/volunteer/:id",function(req,res,next){
     var volunteerId = req.params.id;
+
+    if(req.body.password){
+        req.body.password = bcrypt.hashSync(req.body.password , 10);
+    }
+
     r.db('grace_fellowship').table('volunteer').get(volunteerId).update(req.body)
     .run(req._dbconn,(err,result)=>{
         if(result.replaced>0)
@@ -139,6 +145,7 @@ router.get("/campuses",function(req,res,next){
 
 //fetching batch members of a given campus ID
 router.get("/campus/:campus_id/batch_members",function(req,res,next){
+    console.log("asdas");
     
     r.db('grace_fellowship').table("campus").get(req.params.campus_id).pluck("batchMembers").run(req._dbconn, function(err, result) {
         if (err) {
@@ -148,6 +155,38 @@ router.get("/campus/:campus_id/batch_members",function(req,res,next){
     });
 });
 
+//insert batch member in a given campus by campus ID
+// ******************** to be figured out yet *********************
+router.post("/campus/:campus_id/batch_member",function(req,res,next){
+
+    class Member{
+        constructor(obj){
+            this.name = obj.name;
+            this.email = obj.name;
+            this.contact = obj.contact;
+            this.address = obj.address;
+            this.gender = obj.gender;
+        }
+    }
+    var member = new Member(req.body);
+    
+    r.db('grace_fellowship').table("campus").get(req.params.campus_id).pluck("batchMembers").append(member).run(req._dbconn, function(err, result) {
+        if (err) {
+            res.status(500).json(err);
+        }
+        res.status(200).json(result);
+    });
+});
+
+// adding an admin
+// router.post("/qwe",function (req,res,next){
+//     r.db("grace_fellowship").table('admin').insert({
+//         username:"admin_grace",
+//         password:bcrypt.hashSync("gracewebsiters@123", 10)
+//     }).run(req._dbconn,function (err,result){
+//         res.send(result);
+//     });
+// });
 
 
 

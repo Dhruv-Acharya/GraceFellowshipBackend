@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const checkAuth = require('./api/middleware/check-auth')
 const createConnection = require('./api/middleware/createConnection');
 
 
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/login', loginRoutes);
+app.use(checkAuth);
 app.use('/admin', adminRoutes);
 
 //test route
