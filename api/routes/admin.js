@@ -131,7 +131,7 @@ router.get("/campuses",function(req,res,next){
         if (err) {
             res.status(500).json(err);
         }
-        
+
         result.toArray((err, campuses) =>{
             if (err) {
                 res.status(500).json(err);
@@ -162,18 +162,20 @@ router.post("/campus/:campus_id/batch_member",function(req,res,next){
     class Member{
         constructor(obj){
             this.name = obj.name;
-            this.email = obj.name;
+            this.email = obj.email;
             this.contact = obj.contact;
             this.address = obj.address;
             this.gender = obj.gender;
-        }
+        }   
     }
     var member = new Member(req.body);
     
-    r.db('grace_fellowship').table("campus").get(req.params.campus_id).pluck("batchMembers").append(member).run(req._dbconn, function(err, result) {
+    r.db('grace_fellowship').table("campus").get(req.params.campus_id).update({"batchMembers" : [r.row('batchMembers')].push(member) }).run(req._dbconn, function(err, result) {
         if (err) {
+            console.log("error"+ err);
             res.status(500).json(err);
         }
+        console.log("succ"+ result);
         res.status(200).json(result);
     });
 });

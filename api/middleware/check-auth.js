@@ -3,6 +3,7 @@ require('./../../env');
 
 module.exports = (req, res, next) => {
     try {
+
         const tokenHeader = req.headers.authorization;
 
         if(tokenHeader !== undefined){
