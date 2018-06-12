@@ -33,8 +33,17 @@ app.use((req, res, next) => {
 });
 
 app.use('/login', loginRoutes);
-app.use(checkAuth);
+//Uncomment bottom line in Production
+//app.use(checkAuth);
+
+// (req,res)=>{
+//     if(req.userData.type = 'admin'){
+//         app.use('/admin', adminRoutes);
+//     }
+// }
+
 app.use('/admin', adminRoutes);
+
 
 //test route
 app.get('/test', function (req, res, next) {

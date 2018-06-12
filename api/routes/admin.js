@@ -178,11 +178,48 @@ router.post("/campus/:campus_id/batch_member",function(req,res,next){
     });
 });
 
+//adding a new campus
+router.post("/campus", function(req,res,next){
+
+    class Campus{
+        constructor(obj){
+            this.name = obj.name;
+            this.username = obj.username;
+            this.password = bcrypt.hashSync(obj.password, 10);
+            this.address = obj.address;
+        }
+    }
+    var newCampus = new Campus(req.body);
+    r.db('grace_fellowship').table('campus').insert(newCampus).run(req._dbconn,function(err, success){
+        if (err) {
+            res.status(500).json(err);
+        }
+        else{
+            res.status(200).json(success.inserted);
+        }
+
+    });
+});
+
+router.post('/campus/:campusId/password',function (req,res,next){
+    var encryptedPassword = req.body.password;
+    r.db('grace_fellowship').table('campus').get(req.params.campusId).update({
+        "password":encryptedPassword
+    }).run(req._dbconn,(err,result)=>{
+        if(err){
+            res.status(500).json(err);
+        }
+        else{
+            res.status(200).json(result.replaced);
+        }
+    });
+});
+
 // adding an admin
 // router.post("/qwe",function (req,res,next){
 //     r.db("grace_fellowship").table('admin').insert({
-//         username:"admin_grace",
-//         password:bcrypt.hashSync("gracewebsiters@123", 10)
+//         username:"a-grace",
+//         password:bcrypt.hashSync("qwe", 10)
 //     }).run(req._dbconn,function (err,result){
 //         res.send(result);
 //     });
