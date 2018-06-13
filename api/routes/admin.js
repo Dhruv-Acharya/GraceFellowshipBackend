@@ -170,13 +170,27 @@ router.post("/campus/:campus_id/batch_member",function(req,res,next){
     }
     var member = new Member(req.body);
     
-    r.db('grace_fellowship').table("campus").get(req.params.campus_id).update({"batchMembers" : [r.row('batchMembers')].push(member) }).run(req._dbconn, function(err, result) {
+    // r.db('grace_fellowship').table("campus").get(req.params.campus_id).update({"batchMembers" : [r.row('batchMembers')].push(member) }).run(req._dbconn, function(err, result) {
+    r.db('grace_fellowship').table("campus").get(req.params.campus_id).pluck("batch_members").run(req._dbconn, function(err, result) {
+
         if (err) {
             console.log("error"+ err);
             res.status(500).json(err);
         }
-        console.log("succ"+ result);
-        res.status(200).json(result);
+        else{
+            result.batch_members.push(member);
+            r.db('grace_fellowship').table('campus').get(req.params.campus_id).update({
+                "batch_members":result.batch_members
+            }).run(req._dbconn,function (err,success){
+                if(err){
+                    console.log("error"+ err);
+                    res.status(500).json(err); 
+                }
+                else{
+                    res.status(200).json(success.replaced);
+                }
+            })
+        }
     });
 });
 
@@ -189,6 +203,8 @@ router.post("/campus", function(req,res,next){
             this.username = obj.username;
             this.password = bcrypt.hashSync(obj.password, 10);
             this.address = obj.address;
+            this.batch_members = [];
+            this.reports= [];
         }
     }
     var newCampus = new Campus(req.body);
