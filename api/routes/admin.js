@@ -147,7 +147,7 @@ router.get("/campuses",function(req,res,next){
 router.get("/campus/:campus_id/batch_members",function(req,res,next){
     console.log("asdas");
     
-    r.db('grace_fellowship').table("campus").get(req.params.campus_id).pluck("batchMembers").run(req._dbconn, function(err, result) {
+    r.db('grace_fellowship').table("campus").get(req.params.campus_id).pluck("batch_members").run(req._dbconn, function(err, result) {
         if (err) {
             res.status(500).json(err);
         }
