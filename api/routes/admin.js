@@ -151,7 +151,7 @@ router.get("/campus/:campus_id/batch_members",function(req,res,next){
         if (err) {
             res.status(500).json(err);
         }
-        res.status(200).json(result);
+        res.status(200).json(result.batch_members);
     });
 });
 
