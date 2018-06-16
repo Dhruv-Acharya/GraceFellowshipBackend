@@ -157,11 +157,10 @@ router.get("/campus/:campus_id/batch_members", function (req, res, next) {
 
 //insert batch member in a given campus by campus ID
 router.post("/campus/:campus_id/batch_member", function (req, res, next) {
-
     class Member {
         constructor(ID, obj) {
             this.id = ID;
-            this.name = obj.name;
+            this.name = obj.name; 
             this.email = obj.email;
             this.contact = obj.contact;
             this.address = obj.address;
@@ -223,11 +222,11 @@ router.post("/campus/:campus_id/batch_member", function (req, res, next) {
 });
 
 //update batch member in given campus with given member ID
-router.patch("/campus/:campus_id/batch_member/:member_id", (req, res, next) => {
+router.patch("/campus/:campusId/batch_member/:memberId", (req, res, next) => {
 
     class Member {
         constructor(obj) {
-            this.id = req.params.member_id;
+            this.id = req.params.memberId;
             this.name = obj.name;
             this.email = obj.email;
             this.contact = obj.contact;
@@ -237,11 +236,11 @@ router.patch("/campus/:campus_id/batch_member/:member_id", (req, res, next) => {
     }
     var member = new Member(req.body);
 
-    r.db('grace_fellowship').table('campus').get(req.params.campus_id)
+    r.db('grace_fellowship').table('campus').get(req.params.campusId)
         .update(function (row) {
             return {
                 batch_members: row('batch_members').filter(function (batch_members) {
-                    return batch_members('id').ne(req.params.member_id)
+                    return batch_members('id').ne(req.params.memberId)
                 })
                     .append(member)
             };
@@ -256,13 +255,13 @@ router.patch("/campus/:campus_id/batch_member/:member_id", (req, res, next) => {
 });
 
 //delete batch member in given campus with given member ID
-router.delete("/campus/:campus_id/batch_member/:member_id", (req, res, next) => {
+router.delete("/campus/:campusId/batch_member/:memberId", (req, res, next) => {
 
-    r.db('grace_fellowship').table('campus').get(req.params.campus_id)
+    r.db('grace_fellowship').table('campus').get(req.params.campusId)
         .update(function (row) {
             return {
                 batch_members: row('batch_members').filter(function (batch_members) {
-                    return batch_members('id').ne(req.params.member_id)
+                    return batch_members('id').ne(req.params.memberId)
                 })
             };
         }).run(req._dbconn, (err, success) => {
@@ -274,6 +273,85 @@ router.delete("/campus/:campus_id/batch_member/:member_id", (req, res, next) => 
             }
         });
 });
+
+//Adding instruments via campus ID
+
+router.post('/campus/:campusId/instrument',function (req, res, next){
+
+    class Instrument{
+        constructor(obj){
+            this.campus_id = req.params.campusId;
+            this.name = obj.instrument;
+        }
+    }
+    var instrumnet = new Instrument(req.body);
+    r.db('grace_fellowship').table('instruments').insert(instrumnet).run(req._dbconn,(err ,result)=>{
+        if(err){
+            res.status(500).json(err);
+        }
+        else{
+            res.status(200).json(result.generated_keys[0]);
+        }
+    });
+});
+
+//fetching instruments of a single campus by ID
+
+router.get('/campus/:campusId/instruments',function (req, res, next){
+
+    r.db('grace_fellowship').table('instruments').filter({
+        campus_id:req.params.campusId
+    }).run(req._dbconn,(err ,result)=>{
+        if(err){
+            res.status(500).json(err);
+        }
+        else{
+            result.toArray((err, instruments) => {
+                if (err) {
+                    res.status(500).json(err);
+                }
+                else {
+                    res.status(200).json(instruments);
+                }
+            });
+        }
+    });
+});
+
+//deleting instrument of a campus by campus Id and  Isntrument Id
+router.delete('/campus/:campusId/instrument/:instrumentId',function(req, res, next){
+    
+    r.db('grace_fellowship').table('instruments').filter({
+        "id":req.params.instrumentId,
+        "campus_id":req.params.campusId
+    }).delete().run(req._dbconn, (err, result)=>{
+        if(err){
+            res.status(500).json(err);
+        }
+        else {
+            res.status(200).json(result.deleted);
+        }
+    });
+});
+
+//updating instrument of a campus by campus Id and  Instrument Id
+router.patch('/campus/:campusId/instrument/:instrumentId',function(req, res, next){
+    
+    r.db('grace_fellowship').table('instruments').filter({
+        "id":req.params.instrumentId,
+        "campus_id":req.params.campusId
+    }).update({
+        "name":req.body.instrument
+    }).run(req._dbconn, (err, result)=>{
+        if(err){
+            res.status(500).json(err);
+        }
+        else {
+            res.status(200).json(result.replaced);
+        }
+    });
+});
+
 
 //adding a new campus
 router.post("/campus", function (req, res, next) {
@@ -300,6 +378,8 @@ router.post("/campus", function (req, res, next) {
     });
 });
 
+
+//Update password of a campus login
 router.post('/campus/:campusId/password', function (req, res, next) {
     var encryptedPassword = req.body.password;
     r.db('grace_fellowship').table('campus').get(req.params.campusId).update({
