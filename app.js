@@ -8,6 +8,7 @@ const createConnection = require('./api/middleware/createConnection');
 //routes
 const loginRoutes = require('./api/routes/login');
 const adminRoutes = require('./api/routes/admin');
+const campusRoutes = require('./api/routes/campus');
 //app initializatio
 const app = express();
 
@@ -39,10 +40,13 @@ app.use('/login', loginRoutes);
 // (req,res)=>{
 //     if(req.userData.type = 'admin'){
 //         app.use('/admin', adminRoutes);
+//     }else if(req.userData.type = 'campus'){
+//         app.use('/admin', campusRoutes); 
 //     }
 // }
 
 app.use('/admin', adminRoutes);
+app.use('/admin', campusRoutes);
 
 
 //test route
