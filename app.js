@@ -46,7 +46,7 @@ app.use('/login', loginRoutes);
 // }
 
 app.use('/admin', adminRoutes);
-app.use('/admin', campusRoutes);
+app.use('/campus', campusRoutes);
 
 
 //test route
