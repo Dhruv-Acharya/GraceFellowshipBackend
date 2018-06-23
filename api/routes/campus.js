@@ -20,8 +20,8 @@ router.post("/:campusId/report/basic", function (req, res, next) {
             this.language = obj.language; 
             this.date = obj.date;
             this.filedby = obj.filedby;
-            this.prayer = new Object();
-            this.prayer = obj.prayer;
+            this.begining = new Object();
+            this.begining = obj.begining;
         }
     }
     r.uuid().run(req._dbconn, (err, id) => {
@@ -222,10 +222,67 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
         });
     });
     
-//-------------------------- report module Ends --------------------------------
+//--------------------------insert report module Ends --------------------------------
+
+// ------------------------- getting stuff form reports starts-------------------------
+
+    router.get('/:campusId/report/:reportId',function (req,res,next){
+        var member_ids;
+        var members;
+        r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').filter({
+            "id":req.params.reportId
+        })
+        .run(req._dbconn,function (err, report){
+            if(err){
+                res.status(500).json(err);
+            }
+            else{
+                if(report)
+                {  
+                    r.db('grace_fellowship').table('campus').get(req.params.campusId).pluck('batch_members')
+                    .run(req._dbconn, function(err, members){
+
+                        member_ids = report[0].attendees.members;   
+                        members = members.batch_members;
+                        var replace_field =[];
+                        i=0;
+                        member_ids.forEach(id => {
+                            members.forEach(mem=>{
+                                if(id==mem.id){
+                                    replace_field[i++]=mem;
+                                }
+                            });
+                        });
+                        report[0].attendees.members = replace_field;
+                        res.status(200).json(report[0]);
+                        
+                    });
+                }
+                else    
+                    res.status(403).json("No report by that Id found");
+            }
+        });  
+    })
+    
+    //getting a report list of a campus
+    router.get('/:campusId/report/',function (req,res,next){
+
+        r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').pluck('id', 'date', 'language', 'filedby')
+        .run(req._dbconn,function (err, report){
+            if(err){
+                res.status(500).json(err);
+            }
+            else{
+                if(report)
+                    res.status(200).json(report);
+                else    
+                    res.status(403).json("No reports found");
+            }
+        });
+    })
 
 
 
-
+// ------------------------- getting stuff form reports ends-------------------------
 
 module.exports = router;

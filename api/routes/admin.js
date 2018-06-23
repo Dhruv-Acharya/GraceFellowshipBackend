@@ -492,8 +492,8 @@ router.post("/campus", function (req, res, next) {
 
 
 //Update password of a campus login
-router.post('/campus/:campusId/password', function (req, res, next) {
-    var encryptedPassword = req.body.password;
+router.patch('/campus/:campusId/password', function (req, res, next) {
+    var encryptedPassword = bcrypt.hashSync(req.body.password, 10);    
     r.db('grace_fellowship').table('campus').get(req.params.campusId).update({
         "password": encryptedPassword
     }).run(req._dbconn, (err, result) => {
