@@ -242,20 +242,28 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
                     r.db('grace_fellowship').table('campus').get(req.params.campusId).pluck('batch_members')
                     .run(req._dbconn, function(err, members){
 
-                        member_ids = report[0].attendees.members;   
-                        members = members.batch_members;
-                        var replace_field =[];
-                        i=0;
-                        member_ids.forEach(id => {
-                            members.forEach(mem=>{
-                                if(id==mem.id){
-                                    replace_field[i++]=mem;
-                                }
-                            });
-                        });
-                        report[0].attendees.members = replace_field;
-                        res.status(200).json(report[0]);
-                        
+                        if(report[0].attendees && report[0].attendees.members ){
+                            try {
+                                member_ids = report[0].attendees.members;   
+                                members = members.batch_members;
+                                var replace_field =[];
+                                i=0;
+                                member_ids.forEach(id => {
+                                    members.forEach(mem=>{
+                                        if(id==mem.id){
+                                            replace_field[i++]=mem;
+                                        }
+                                    });
+                                });
+                                report[0].attendees.members = replace_field;
+                                res.status(200).json(report[0]);    
+                            } catch (error) {
+                                res.status(555).json("join error");
+                            }
+                            
+                        }else{
+                            res.status(200).json(report[0]);
+                        }
                     });
                 }
                 else    
