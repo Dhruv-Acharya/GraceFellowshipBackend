@@ -93,8 +93,8 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
 
         class Activities {
             constructor(obj) {
-                this.lords_table = obj.activities.lords_table;
-                this.announcement = obj.activities.announcement;
+                this.lords_table = obj.lords_table;
+                this.announcement = obj.announcement;               
             }
         }
         class Ending {
@@ -267,15 +267,16 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
     //getting a report list of a campus
     router.get('/:campusId/report/',function (req,res,next){
 
-        r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').pluck('id', 'date', 'language', 'filedby')
+        r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').pluck('id', 'date', 'language', 'filedby',{'begining':['start']})
         .run(req._dbconn,function (err, report){
-            if(err){
+            if (err) {
                 res.status(500).json(err);
-            }
-            else{
-                if(report)
+            } else {
+                
+                if (report) {
+                    
                     res.status(200).json(report);
-                else    
+                } else
                     res.status(403).json("No reports found");
             }
         });
@@ -284,5 +285,27 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
 
 
 // ------------------------- getting stuff form reports ends-------------------------
+
+router.delete("/:campusId/report/:reportId", (req, res, next) => {
+    r.db('grace_fellowship').table('campus').get(req.params.campusId).update((item) => {
+        return {
+            reports: item('reports')
+            .filter(function (report) {
+                return report("id").ne(req.params.reportId)
+            })
+        }
+    })
+    .run(req._dbconn, function (err, result) {
+        if (err)
+            res.status(500).json(err);
+        else {
+            if (result.replaced > 1) {
+                res.status(200).json(result.replaced);
+            } else {
+                res.status(403).json(result);
+            }
+        }
+    })
+});
 
 module.exports = router;
