@@ -226,8 +226,9 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
 
 // ------------------------- getting stuff form reports starts-------------------------
 
+    //fetch single report
     router.get('/:campusId/report/:reportId',function (req,res,next){
-        
+
         r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').filter({
             "id":req.params.reportId
         })
