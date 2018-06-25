@@ -9,6 +9,8 @@ const createConnection = require('./api/middleware/createConnection');
 const loginRoutes = require('./api/routes/login');
 const adminRoutes = require('./api/routes/admin');
 const campusRoutes = require('./api/routes/campus');
+const volunteerRoutes = require('./api/routes/volunteer');
+const trusteeRoutes = require('./api/routes/trustee');
 //app initializatio
 const app = express();
 
@@ -42,11 +44,17 @@ app.use('/login', loginRoutes);
 //         app.use('/admin', adminRoutes);
 //     }else if(req.userData.type = 'campus'){
 //         app.use('/admin', campusRoutes); 
+//     }else if(req.userData.type = 'volunteer'){
+//         app.use('/volunteer',volunteerRoutes);
+//     }else if(req.userData.type = 'trustee'){
+//         app.use('/trustee',trusteeRoutes)
 //     }
 // }
 
 app.use('/admin', adminRoutes);
 app.use('/campus', campusRoutes);
+app.use('/volunteer',volunteerRoutes);
+app.use('/trustee',trusteeRoutes)
 
 
 //test route
