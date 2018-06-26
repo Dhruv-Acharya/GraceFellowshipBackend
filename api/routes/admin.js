@@ -516,6 +516,107 @@ router.patch('/campus/:campusId/password', function (req, res, next) {
 //     });
 // });
 
+//------------------------trustee module begin----------------------
 
+
+//Adding instruments via campus ID
+
+router.post('/trustee',function (req, res, next){
+
+    class Trustee{
+        constructor(obj){
+            this.username = obj.username;
+            this.email = obj.email;
+            this.name = obj.name;
+            this.password = bcrypt.hashSync(obj.password, 10);
+        }
+    }
+    var trustee = new Trustee(req.body);
+    r.db('grace_fellowship').table('trustee').insert(trustee).run(req._dbconn,(err ,result)=>{
+        if(err){
+            res.status(500).json(err);  
+        }
+        else{
+            res.status(200).json(result.generated_keys[0]);
+        }
+    });
+});
+
+//fetching trustee of a single by ID
+
+router.get('/trustee/:trusteeId',function (req, res, next){
+
+    r.db('grace_fellowship').table('trustee').get(req.params.trusteeId)
+    .run(req._dbconn,(err ,trustee)=>{
+        if(err){
+            res.status(500).json(err);
+        }
+        else{
+          
+                if (err) {
+                    res.status(500).json(err);
+                }
+                else {
+                    res.status(200).json(trustee);
+                }
+          
+        }
+    });
+});
+
+//fetching all trustee
+
+router.get('/trustees',function (req, res, next){
+
+    r.db('grace_fellowship').table('trustee')
+    .run(req._dbconn,(err ,result)=>{
+        if(err){
+            res.status(500).json(err);
+        }
+        else{
+            result.toArray((err, trustee) => {
+                if (err) {
+                    res.status(500).json(err);
+                }
+                else {
+                    res.status(200).json(trustee);
+                }
+            });
+        }
+    });
+});
+
+//deleting trustee by trustee ID
+router.delete('/trustee/:trusteeId',function(req, res, next){
+    
+    r.db('grace_fellowship').table('trustee').get(req.params.trusteeId).delete().run(req._dbconn, (err, result)=>{
+        if(err){
+            res.status(500).json(err);
+        }
+        else {
+            res.status(200).json(result.deleted);
+        }
+    });
+});
+
+//updating trustee by trustee Id
+router.patch('/trustee/:trusteeId',function(req, res, next){
+    
+    r.db('grace_fellowship').table('trustee').filter({
+        "id":req.params.trusteeId,
+    }).update({
+        "name":req.body.instrument
+    }).run(req._dbconn, (err, result)=>{
+        if(err){
+            res.status(500).json(err);
+        }
+        else {
+            res.status(200).json(result.replaced);
+        }
+    });
+});
+
+
+//------------------------trustee module ends----------------------
 
 module.exports = router;
