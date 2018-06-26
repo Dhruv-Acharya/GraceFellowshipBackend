@@ -61,12 +61,12 @@ router.get("/volunteers", function (req, res, next) {
 
 // get a single volunteer by ID
 router.get("/volunteer/:id", function (req, res, next) {
-console.log(req.params.id);
+// console.log(req.params.id);
 
     var volunteerId = req.params.id;
     r.db('grace_fellowship').table('volunteer').get(volunteerId).without('password')
         .run(req._dbconn, (err, vol) => {
-            console.log(err);
+            // console.log(err);
             
             if (vol)
                 res.status(200).json(vol);
@@ -206,7 +206,7 @@ router.post("/campus/:campusId/batch_member", function (req, res, next) {
 
     r.uuid().run(req._dbconn, (err, id) => {
         if (err) {
-            console.log("error : " + err);
+            // console.log("error : " + err);
             res.status(500).json(err);
         }
         else {
@@ -215,7 +215,7 @@ router.post("/campus/:campusId/batch_member", function (req, res, next) {
                 { batch_members: r.row("batch_members").default([]).append(member) }
             ).run(req._dbconn, (err, success) => {
                 if (err) {
-                    console.log("error : " + err);
+                    // console.log("error : " + err);
                     res.status(500).json(err);
                 }
                 else {

@@ -66,9 +66,9 @@ router.post('/', function (req, res, next) {
             else{
                 
                 cursor.toArray((err, result) =>{
-                    console.log(result);
+                    // console.log(result);
                     if (err) {
-                        console.log(err);
+                        // console.log(err);
                         
                         res.status(500).json(err);
                     }
@@ -82,7 +82,7 @@ router.post('/', function (req, res, next) {
                         bcrypt.compare(req.body.password, result[0].password, (err, success) => {
 
                             if (err) {
-                                console.log(err);
+                                // console.log(err);
                                 
                                 return res.status(500).json({
                                     message: err
