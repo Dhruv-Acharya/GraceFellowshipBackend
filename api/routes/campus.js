@@ -284,7 +284,7 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
         var response = new Object();
         r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').filter({
             "id":req.params.reportId
-        })
+        }).without('general','cheque','tithe')
         .run(req._dbconn,function (err, report){
             if(err){
                 res.status(500).json(err);
@@ -313,8 +313,6 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
                                         if(err)res.status(500),json(err);
                                         else{
                                             response.instruments = result;
-                                            
-                                            
                                             res.status(200).json(response);
                                         }
                                     });
