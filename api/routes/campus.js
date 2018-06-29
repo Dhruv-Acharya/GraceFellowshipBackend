@@ -96,18 +96,6 @@ router.post("/:campusId/report/basic", function (req, res, next) {
 //update report basic details
 router.patch("/:campusId/report/:reportId/basic", (req, res, next) => {
 
-    class ReportDetails {
-        constructor(obj) {
-            this.language = obj.language; 
-            this.date = obj.date;
-            this.filedby = obj.filedby;
-            this.begining = new Object();
-            this.begining = obj.begining;
-        }
-    }
-
-    var report_details = new ReportDetails(req.body);
-
         r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').offsetsOf(
             r.row("id").match(req.params.reportId)
         ).run(req._dbconn, function (err, succ) {
@@ -119,7 +107,7 @@ router.patch("/:campusId/report/:reportId/basic", (req, res, next) => {
                 
                 try{
                     r.db('grace_fellowship').table('campus').get(req.params.campusId).update({
-                        reports: r.row('reports').changeAt(x, r.row('reports').nth(x).merge(report_details))
+                        reports: r.row('reports').changeAt(x, r.row('reports').nth(x).merge(req.body))
                     }).run(req._dbconn, function (err, success) {
                         if (err) {
                             res.status(500).json(err);
