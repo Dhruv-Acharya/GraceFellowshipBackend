@@ -42,7 +42,52 @@ router.post("/:campusId/report/basic", function (req, res, next) {
                     res.status(500).json(err);
                 }
                 else {
-                    res.status(200).json(id);
+
+
+                    var response = new Object();
+                    r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').filter({
+                        "id":id
+                    }).without('general','cheque','tithe')
+                    .run(req._dbconn,function (err, report){
+                        if(err){
+                            res.status(500).json(err);
+                        }
+                        else{
+                            if(report)
+                            {   
+                                response.report = report[0];
+                                r.db('grace_fellowship').table('campus').get(req.params.campusId)('batch_members').filter({
+                                    active: true
+                                })
+                                .run(req._dbconn,function (err, batch_members){
+                                    if(err){
+                                        res.status(500).json(err);
+                                    }
+                                    else{
+                                        response.batch_members = batch_members;
+                                        r.db('grace_fellowship').table('instruments').filter({
+                                            campus_id: req.params.campusId
+                                        }).without('campus_id')
+                                        .run(req._dbconn,function (err, instruments){
+                                            if(err){
+                                                res.status(500).json(err);
+                                            }else{
+                                                instruments.toArray((err, result)=>{
+                                                    if(err)res.status(500),json(err);
+                                                    else{
+                                                        response.instruments = result;
+                                                        res.status(200).json(response);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                            else    
+                                res.status(403).json("No report by that Id found");
+                        }
+                    });
                 }
             });
         }
