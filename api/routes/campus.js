@@ -408,7 +408,7 @@ router.delete("/:campusId/report/:reportId", (req, res, next) => {
         if (err)
             res.status(500).json(err);
         else {
-            if (result.replaced > 1) {
+            if (result.replaced >= 1) {
                 res.status(200).json(result.replaced);
             } else {
                 res.status(403).json(result);
