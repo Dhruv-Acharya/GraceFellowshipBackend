@@ -408,21 +408,23 @@ router.post('/donation_category',function (req, res, next){
     });
 });
 
-//fetching a single donation category by ID
+//fetching all donation category
 
-router.get('/donation_category/:id',function (req, res, next){
+router.get('/donation_category',function (req, res, next){
 
-    r.db('grace_fellowship').table('donation_category').get(req.params.id).run(req._dbconn,(err ,result)=>{
+    r.db('grace_fellowship').table('donation_category').run(req._dbconn,(err ,result)=>{
         if(err){
             res.status(500).json(err);
         }
         else{
-            if (!result) {
-                res.status(500).json("No Category Found");
-            }
-            else {
-                res.status(200).json(result);
-            }
+            result.toArray((err,list)=>{
+                if (err) {
+                    res.status(500).json(err);
+                }
+                else {
+                    res.status(200).json(list);
+                }
+            })   
         }
     });
 });
