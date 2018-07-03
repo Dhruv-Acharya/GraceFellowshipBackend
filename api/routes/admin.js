@@ -219,7 +219,7 @@ router.post("/campus/:campusId/batch_member", function (req, res, next) {
             this.contact = obj.contact;
             this.address = obj.address;
             this.gender = obj.gender;
-            this.join_date = obj.joinDate;
+            this.join_date = obj.join_date;
         }
     }
 

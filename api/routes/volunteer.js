@@ -56,11 +56,11 @@ router.post('/:campusId/report/:reportId/offerings/:type',(req,res)=>{
     
 //     r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').offsetsOf(
 //         r.row("id").match(req.params.reportId)
-//     )
-//     .run(req._dbconn,function (err,result){
-//         if(err)res.status(500).json(err);
-//         else{
-//             x = result[0];
+    //     )
+    //     .run(req._dbconn,function (err,result){
+    //         if(err)res.status(500).json(err);
+    //         else{
+    //             x = result[0];
 //             try {
 
 //                 r.db('grace_fellowship').table('campus').get(req.params.campusId).update({
