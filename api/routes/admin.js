@@ -302,24 +302,6 @@ router.delete("/campus/:campusId/batch_member/:memberId", (req, res, next) => {
              }
         }
     });
-
-
-    //--
-    // r.db('grace_fellowship').table('campus').get(req.params.campusId)
-    //     .update(function (row) {
-    //         return {
-    //             batch_members: row('batch_members').filter(function (batch_members) {
-    //                 return batch_members('id').ne(req.params.memberId)
-    //             })
-    //         };
-    //     }).run(req._dbconn, (err, success) => {
-    //         if (err) {
-    //             res.status(500).json(err);
-    //         }
-    //         else {
-    //             res.status(200).json(success.replaced);
-    //         }
-    //     });
 });
 
 // ------------------------- batch members section end ---------------------------

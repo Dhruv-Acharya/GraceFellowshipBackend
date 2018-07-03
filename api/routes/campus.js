@@ -5,7 +5,146 @@ const router = express.Router();
 const r = require('rethinkdb');
 require('./../../env');
 
-//attendece module
+// ------------------------- batch members section start ---------------------------
+
+//fetching all batch members of a given campus ID
+router.get("/:campusId/batch_members", function (req, res, next) {
+
+    r.db('grace_fellowship').table('campus').get(req.params.campusId)('batch_members').filter({
+        active:true
+    })
+    .run(req._dbconn, function (err, result) {
+        if (err) {
+            res.status(500).json(err);
+        }else{
+            if(result){
+                res.status(200).json(result);
+            }else{
+                res.status(403).json("No active members found");
+            }
+        }
+        
+    });
+});
+
+//fetching a single batch member
+router.get('/:campusId/batch_member/:memberId',function (req, res, next){
+    r.db('grace_fellowship').table('campus').get(req.params.campusId)('batch_members').filter({
+        "id":req.params.memberId,
+        active:true
+    })
+    
+    .run(req._dbconn, (err, success) => {
+        if (err) {
+            res.status(500).json(err);
+        }
+        else {
+            if(success[0])
+                res.status(200).json(success[0]);
+            else    
+                res.status(403).json("No member found");
+        }
+    });
+});
+
+
+//insert batch member in a given campus by campus ID
+router.post("/:campusId/batch_member", function (req, res, next) {
+    class Member {
+        constructor(ID, obj) {
+            this.id = ID;
+            this.name = obj.name; 
+            this.active = true;
+            this.email = obj.email;
+            this.contact = obj.contact;
+            this.address = obj.address;
+            this.gender = obj.gender;
+            this.join_date = obj.joinDate;
+        }
+    }
+
+    r.uuid().run(req._dbconn, (err, id) => {
+        if (err) {
+            // console.log("error : " + err);
+            res.status(500).json(err);
+        }
+        else {
+            var member = new Member(id, req.body);
+            r.db('grace_fellowship').table("campus").get(req.params.campusId).update(
+                { batch_members: r.row("batch_members").default([]).append(member) }
+            ).run(req._dbconn, (err, success) => {
+                if (err) {
+                    // console.log("error : " + err);
+                    res.status(500).json(err);
+                }
+                else {
+                    res.status(200).json(success.replaced);
+                }
+            });
+        }
+    });
+});
+
+//update batch member in given campus with given member ID
+    router.patch("/:campusId/batch_member/:memberId", (req, res, next) => {
+        r.db('grace_fellowship').table('campus').get(req.params.campusId)('batch_members').offsetsOf(
+            r.row("id").match(req.params.memberId)
+        ).run(req._dbconn, function (err, succ) {
+            if (err) {
+                res.status(500).json(err);
+            } else {
+
+                x = succ[0];
+                
+                try{
+                    r.db('grace_fellowship').table('campus').get(req.params.campusId).update({
+                        batch_members: r.row('batch_members').changeAt(x, r.row('batch_members').nth(x).merge(req.body))
+                    }).run(req._dbconn, function (err, success) {
+                        if (err) {
+                            res.status(500).json(err);
+                        } else {
+                            res.status(200).json(success.replaced);
+                        }
+                    });
+                }
+                catch(err){
+                    res.status(500).json("Problem with nth Number"+err);
+                 }
+            }
+        });
+    });
+
+
+//delete batch member in given campus with given member ID
+router.delete("/:campusId/batch_member/:memberId", (req, res, next) => {
+    r.db('grace_fellowship').table('campus').get(req.params.campusId)('batch_members').offsetsOf(
+        r.row("id").match(req.params.memberId)
+    ).run(req._dbconn, function (err, succ) {
+        if (err) {
+            res.status(500).json(err);
+        } else {
+
+            x = succ[0];
+            
+            try{
+                r.db('grace_fellowship').table('campus').get(req.params.campusId).update({
+                    batch_members: r.row('batch_members').changeAt(x, r.row('batch_members').nth(x).merge({"active":false}))
+                }).run(req._dbconn, function (err, success) {
+                    if (err) {
+                        res.status(500).json(err);
+                    } else {
+                        res.status(200).json(success.replaced);
+                    }
+                });
+            }
+            catch(err){
+                res.status(500).json("Problem with nth Number"+err);
+             }
+        }
+    });
+});
+
+// ------------------------- batch members section end ---------------------------
 
 
 
