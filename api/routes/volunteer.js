@@ -8,9 +8,11 @@ require('./../../env');
 //combined effort for inserting geeneral tithe and cheque
 router.post('/:campusId/report/:reportId/offerings/:type',(req,res)=>{
 
-    if(req.params.type === 'tithe')type ='tithe';
-    else if(req.params.type === 'general')type = 'general';
-    else if(req.params.type === 'cheque')type = 'cheque';
+    var type = Object();
+
+    if(req.params.type === 'tithe') type['tithe'] = req.body;
+    else if(req.params.type === 'general') type['general'] = req.body;
+    else if(req.params.type === 'cheque') type['cheque'] = req.body;
     else type = 'error';
     
     r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').offsetsOf(
@@ -23,9 +25,7 @@ router.post('/:campusId/report/:reportId/offerings/:type',(req,res)=>{
             try {
 
                 r.db('grace_fellowship').table('campus').get(req.params.campusId).update({
-                    reports: r.row('reports').changeAt(x, r.row('reports').nth(x).merge({
-                        type:req.body
-                    }))
+                    reports: r.row('reports').changeAt(x, r.row('reports').nth(x).merge(type))
                 }).run(req._dbconn, function (err, success) {
                     if (err) {
                         res.status(500).json(err);
@@ -153,77 +153,57 @@ router.post('/:campusId/report/:reportId/offerings/:type',(req,res)=>{
 // });
 // ------------------------- getting stuff form reports starts-------------------------
 
-    //fetch single report
 
-    //response:
-    // {
-    //     "report": actual report,
-    //     "batch_members": batch_members_array,
-    //     "instuments": instruments_array
-    // }
-
-    router.get('/:campusId/report/:reportId',function (req,res,next){
-
-        var response = new Object();
-        r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').filter({
-            "id":req.params.reportId
-        })
-        .run(req._dbconn,function (err, report){
-            if(err){
-                res.status(500).json(err);
-            }
-            else{
-                if(report)
-                {   
-                    response.report = report[0];
-                    r.db('grace_fellowship').table('campus').get(req.params.campusId)('batch_members').filter({
-                        active: true
-                    })
-                    .run(req._dbconn,function (err, batch_members){
-                        if(err){
-                            res.status(500).json(err);
-                        }
-                        else{
-                            response.batch_members = batch_members;
-                            r.db('grace_fellowship').table('instruments').filter({
-                                campus_id: req.params.campusId
-                            }).without('campus_id')
-                            .run(req._dbconn,function (err, instruments){
-                                if(err){
-                                    res.status(500).json(err);
-                                }else{
-                                    instruments.toArray((err, result)=>{
-                                        if(err)res.status(500),json(err);
-                                        else{
-                                            response.instruments = result;
-                                            res.status(200).json(response);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-                else    
-                    res.status(403).json("No report by that Id found");
-            }
-        });  
-    })
-
-    //fetch tithe / cheque / general of a report
-    router.use('/:campusId/report/:reportId/offerings/:type',function (req,res){
+    //fetch report by volunteer ID
+    router.get('/:volunteerId/reports',(req,res)=>{
+        console.log('in');
         
-        if(req.params.type === 'tithe')type ='tithe';
-        else if(req.params.type === 'general')type = 'general';
-        else if(req.params.type === 'cheque')type = 'cheque';
-        else type = 'error';
+        r.db('grace_fellowship').table('volunteer').get(req.params.volunteerId)
+        .run(req._dbconn,function (err,result) {
+            if(err) res.status(500).json(err);
+            else{
+                r.db('grace_fellowship').table('campus').get(result.campus_id)('reports')
+                .orderBy(r.desc('epoch'))
+                .without('epoch')
+                .slice(0,15)
+                .run(req._dbconn,function (err,result) {
+                    if(err) res.status(500).json(err);
+                    else{
+                        res.status(200).json(result);
+                    }
+                })
+            }
+        })
+    });
 
+    //fetch tithe & cheque & general & category of a report
+    router.use('/:campusId/report/:reportId/offerings',function (req,res){
+        
         r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').filter({
             "id":req.params.reportId
-        }).pluck(type)
+        }).pluck('tithe','general','cheque')
         .run(req._dbconn,(err,result)=>{
-            res.status(200).json(result[0][req.params.type]);
-            
+            if(err) res.status(500).json(err);
+            else{
+                r.db('grace_fellowship').table('donation_category').pluck('category')
+                .run(req._dbconn,(err,category)=>{
+                    if(err) res.status(500).json(err);
+                    else{
+                        category.toArray((err,array)=>{
+                            if(err) res.status(500).json(err);
+                            else{
+                                result[0]['donation_category'] = [];
+                                
+                                array.forEach(element => {
+                                    result[0]['donation_category'].push(element['category'])
+                                });
+                                res.status(200).json(result[0]);    
+                            }
+                        })
+                        
+                    }
+                })
+            }
         })
     });
 

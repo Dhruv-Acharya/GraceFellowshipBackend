@@ -149,17 +149,28 @@ router.delete("/:campusId/batch_member/:memberId", (req, res, next) => {
 
 
 //-------------------------- report module Begins (Still woorking on it)--------------------------------
-//adding basic report details
+
 
 router.get('/',function(req,res){
     res.send("qweasd");
 });
 
+//adding basic report details
 router.post("/:campusId/report/basic", function (req, res, next) {
     class ReportDetails {
         constructor(id, obj) {
+
+            //converting date and time to date object
+            var date_epoch = obj.date.split("-");
+            date_epoch = date_epoch.concat(obj.begining.start.split(":"));
+            date_epoch.push(0,0);
+            var d = new Date(date_epoch[2],date_epoch[1]-1,date_epoch[0],date_epoch[3],date_epoch[4]);
+
             this.id = id
             this.language = obj.language; 
+            
+            //adding epoch time
+            this.epoch = d.getTime();
             this.date = obj.date;
             this.filedby = obj.filedby;
             this.begining = new Object();
