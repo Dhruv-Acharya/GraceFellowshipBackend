@@ -453,7 +453,7 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
 
 // ------------------------- getting stuff form reports starts-------------------------
 
-    //fetch single report
+
 
     //response:
     // {
@@ -461,7 +461,7 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
     //     "batch_members": batch_members_array,
     //     "instuments": instruments_array
     // }
-
+    //fetch single report
     router.get('/:campusId/report/:reportId',function (req,res,next){
 
         var response = new Object();
@@ -510,10 +510,13 @@ router.patch("/:campusId/report/:reportId/sermon", (req, res, next) => {
         });  
     })
     
-    //getting a report list of a campus
+    //getting all reports of a campus
     router.get('/:campusId/report/',function (req,res,next){
 
-        r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').pluck('id', 'date', 'language', 'filedby',{'begining':['start']})
+        r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports')
+        .orderBy(r.desc('epoch'))
+        .limit(15)
+        .pluck('id', 'date', 'language', 'filedby',{'begining':['start']})
         .run(req._dbconn,function (err, report){
             if (err) {
                 res.status(500).json(err);

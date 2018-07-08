@@ -561,7 +561,7 @@ router.get('/trustee/:trusteeId',function (req, res, next){
 
 router.get('/trustees',function (req, res, next){
 
-    r.db('grace_fellowship').table('trustee')
+    r.db('grace_fellowship').table('trustee').without('password')
     .run(req._dbconn,(err ,result)=>{
         if(err){
             res.status(500).json(err);
@@ -595,11 +595,15 @@ router.delete('/trustee/:trusteeId',function(req, res, next){
 //updating trustee by trustee Id
 router.patch('/trustee/:trusteeId',function(req, res, next){
     
+    if (req.body.password) {
+        req.body.password = bcrypt.hashSync(req.body.password, 10);
+    }
+
     r.db('grace_fellowship').table('trustee').filter({
         "id":req.params.trusteeId,
-    }).update({
-        "name":req.body.instrument
-    }).run(req._dbconn, (err, result)=>{
+    }).update(
+        req.body
+    ).run(req._dbconn, (err, result)=>{
         if(err){
             res.status(500).json(err);
         }
