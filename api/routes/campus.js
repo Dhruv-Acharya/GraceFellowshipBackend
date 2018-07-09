@@ -148,12 +148,8 @@ router.delete("/:campusId/batch_member/:memberId", (req, res, next) => {
 
 
 
-//-------------------------- report module Begins (Still woorking on it)--------------------------------
+//-------------------------- report module Begins --------------------------------
 
-
-router.get('/',function(req,res){
-    res.send("qweasd");
-});
 
 //adding basic report details
 router.post("/:campusId/report/basic", function (req, res, next) {

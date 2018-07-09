@@ -37,26 +37,26 @@ app.use((req, res, next) => {
 
 app.use('/login', loginRoutes);
 //Uncomment bottom line in Production
-// app.use(checkAuth);
+app.use(checkAuth);
 
-// (req,res)=>{
-//     console.log("Asd");
+(req,res)=>{
+    console.log("Asd");
     
-//     if(req.userData.type = 'admin'){
-//         app.use('/admin', adminRoutes);
-//     }else if(req.userData.type = 'campus'){
-//         app.use('/admin', campusRoutes); 
-//     }else if(req.userData.type = 'volunteer'){
-//         app.use('/volunteer',volunteerRoutes);
-//     }else if(req.userData.type = 'trustee'){
-//         app.use('/trustee',trusteeRoutes)
-//     }
-// }
+    if(req.userData.type = 'admin'){
+        app.use('/admin', adminRoutes);
+    }else if(req.userData.type = 'campus'){
+        app.use('/admin', campusRoutes); 
+    }else if(req.userData.type = 'volunteer'){
+        app.use('/volunteer',volunteerRoutes);
+    }else if(req.userData.type = 'trustee'){
+        app.use('/trustee',trusteeRoutes)
+    }
+}
 
-app.use('/admin', adminRoutes);
-app.use('/campus', campusRoutes);
-app.use('/volunteer',volunteerRoutes);
-app.use('/trustee',trusteeRoutes)
+// app.use('/admin', adminRoutes);
+// app.use('/campus', campusRoutes);
+// app.use('/volunteer',volunteerRoutes);
+// app.use('/trustee',trusteeRoutes)
 
 
 //test route
