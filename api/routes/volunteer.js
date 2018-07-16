@@ -6,7 +6,7 @@ require('./../../env');
 //const campusRoutes = require('./campus');
 
 //combined effort for inserting geeneral tithe and cheque
-router.post('/:campusId/report/:reportId/offerings/:type',(req,res)=>{
+router.post('/:volunteerId/report/:reportId/offerings/:type',(req,res)=>{
 
     var type = Object();
 
@@ -14,30 +14,37 @@ router.post('/:campusId/report/:reportId/offerings/:type',(req,res)=>{
     else if(req.params.type === 'general') type['general'] = req.body;
     else if(req.params.type === 'cheque') type['cheque'] = req.body;
     else type = 'error';
-    
-    r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').offsetsOf(
-        r.row("id").match(req.params.reportId)
-    )
-    .run(req._dbconn,function (err,result){
-        if(err)res.status(500).json(err);
-        else{
-            x = result[0];
-            try {
 
-                r.db('grace_fellowship').table('campus').get(req.params.campusId).update({
-                    reports: r.row('reports').changeAt(x, r.row('reports').nth(x).merge(type))
-                }).run(req._dbconn, function (err, success) {
-                    if (err) {
-                        res.status(500).json(err);
-                    } else {
-                        res.status(200).json(success.replaced);
+    r.db('grace_fellowship').table('volunteer').get(req.params.volunteerId)
+    .run(req._dbconn,function (err,vol) {
+        if(err) res.status(500).json(err);
+        else{
+
+            r.db('grace_fellowship').table('campus').get(vol.campus_id)('reports').offsetsOf(
+                r.row("id").match(req.params.reportId)
+            )
+            .run(req._dbconn,function (err,result){
+                if(err)res.status(500).json(err);
+                else{
+                    x = result[0];
+                    try {
+
+                        r.db('grace_fellowship').table('campus').get(vol.campus_id).update({
+                            reports: r.row('reports').changeAt(x, r.row('reports').nth(x).merge(type))
+                        }).run(req._dbconn, function (err, success) {
+                            if (err) {
+                                res.status(500).json(err);
+                            } else {
+                                res.status(200).json(success.replaced);
+                            }
+                        });
+                    } catch (error) {
+                        res.status(500).json("Problem with nth Number" + err);
                     }
-                });
-            } catch (error) {
-                res.status(500).json("Problem with nth Number" + err);
-            }
+                }
+            })
         }
-    })
+    });
 });
 
 
@@ -177,34 +184,42 @@ router.post('/:campusId/report/:reportId/offerings/:type',(req,res)=>{
     });
 
     //fetch tithe & cheque & general & category of a report
-    router.use('/:campusId/report/:reportId/offerings',function (req,res){
+    router.use('/:volunteerId/report/:reportId/offerings',function (req,res){
         
-        r.db('grace_fellowship').table('campus').get(req.params.campusId)('reports').filter({
-            "id":req.params.reportId
-        }).pluck('tithe','general','cheque')
-        .run(req._dbconn,(err,result)=>{
+
+        r.db('grace_fellowship').table('volunteer').get(req.params.volunteerId)
+        .run(req._dbconn,function (err,vol) {
             if(err) res.status(500).json(err);
             else{
-                r.db('grace_fellowship').table('donation_category').pluck('category')
-                .run(req._dbconn,(err,category)=>{
+                
+                r.db('grace_fellowship').table('campus').get(vol.campus_id)('reports').filter({
+                    "id":req.params.reportId
+                }).pluck('tithe','general','cheque')
+                .run(req._dbconn,(err,result)=>{
                     if(err) res.status(500).json(err);
                     else{
-                        category.toArray((err,array)=>{
+                        r.db('grace_fellowship').table('donation_category').pluck('category')
+                        .run(req._dbconn,(err,category)=>{
                             if(err) res.status(500).json(err);
                             else{
-                                result[0]['donation_category'] = [];
+                                category.toArray((err,array)=>{
+                                    if(err) res.status(500).json(err);
+                                    else{
+                                        result[0]['donation_category'] = [];
+                                        
+                                        array.forEach(element => {
+                                            result[0]['donation_category'].push(element['category'])
+                                        });
+                                        res.status(200).json(result[0]);    
+                                    }
+                                })
                                 
-                                array.forEach(element => {
-                                    result[0]['donation_category'].push(element['category'])
-                                });
-                                res.status(200).json(result[0]);    
                             }
                         })
-                        
                     }
                 })
             }
-        })
+        });
     });
 
 // router.use('/',campusRoutes);
