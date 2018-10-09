@@ -44,18 +44,18 @@ router.post('/', function (req, res, next) {
             });
     }*/
     if(req.body.username[0] === 'v')
-        user_type = "Volunteer";
-    else if(req.body.username[0] === 'o')
-        user_type = "OfferingsHandler";
+        user_type = "volunteer";
+    else if(req.body.username[0] === 'c')
+        user_type = "campus";
     else if(req.body.username[0] === 'a')
-        user_type = "Admin";
+        user_type = "admin";
     else if(req.body.username[0] === 't')
-        user_type = "Trustee";
+        user_type = "trustee";
     else
         user_type = "Invalid";
 
     if (user_type.localeCompare("Invalid") != 0 || user_type !== null) {
-        let username_field = user_type+'_username';
+        let username_field = 'username';
         r.db('grace_fellowship').table(user_type).filter(r.row(username_field).eq(req.body.username)).
         run(req._dbconn, (err, cursor) =>{
             if(err){
@@ -64,19 +64,26 @@ router.post('/', function (req, res, next) {
                 });
             }
             else{
+                
                 cursor.toArray((err, result) =>{
+                    // console.log(result);
                     if (err) {
+                        // console.log(err);
+                        
                         res.status(500).json(err);
                     }
                     else if(result.length === 0) {
-                        res.status(404).json({
-                            message : "User not Found!"
+                        res.status(401).json({
+                            message : "Invalid Credentials"
                         });
                     }
                     else {
-                        let name_password = retriveNamePassword(user_type,result);
-                        bcrypt.compare(req.body.password, name_password.split("%")[1], (err, success) => {
+                        // let name_password = retriveNamePassword(user_type,result);
+                        bcrypt.compare(req.body.password, result[0].password, (err, success) => {
+
                             if (err) {
+                                // console.log(err);
+                                
                                 return res.status(500).json({
                                     message: err
                                 });
@@ -85,12 +92,12 @@ router.post('/', function (req, res, next) {
                                 const token = jwt.sign(
                                     {
                                         id: result[0].id,
-                                        name: name_password.split("%")[0],
+                                        name: result[0].name,
                                         type: user_type
                                     },
                                     process.env.JWT_KEY,
                                     {
-                                        expiresIn: '1h'
+                                        expiresIn: '111h'
                                     }
                                 );
                                 return res.status(200).json({
@@ -100,11 +107,13 @@ router.post('/', function (req, res, next) {
                             }
                             else{
                                 return res.status(401).json({
-                                    message: 'Password Incorrect!',
+                                    message: 'Invalid Credentials!',
                                 });
                             }
                         });
                     }
+
+
                 });
             }
         });
